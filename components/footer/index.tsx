@@ -1,28 +1,31 @@
-import cNames from "classnames";
 import { FC } from "react";
-import styles from "./styles.module.scss";
-import publicLogo from "@/public/public_logo.png";
 import Image from "next/image";
+import publicLogo from "@/public/public_logo.png";
+import styles from "./styles.module.scss";
+import cName from "classnames";
 
 interface ILink {
   label: string;
   link?: string;
 }
+
 interface ILinkList {
   title: string;
   list: ILink[];
 }
+
 interface IQRCode {
   image: string;
   text: string;
 }
+
 export interface IFooterProps {
   title: string;
   linkList: ILinkList[];
   qrCode: IQRCode;
   copyRight: string;
-  siteNumber: string;
-  publicNumber: string;
+  siteNumber: string; // 站点备案号
+  publicNumber: string; // 公安备案号
 }
 
 export const Footer: FC<IFooterProps> = ({
@@ -41,12 +44,12 @@ export const Footer: FC<IFooterProps> = ({
           {linkList?.map((item, index) => {
             return (
               <div className={styles.linkArea} key={`linkArea${index}`}>
-                <span>{item.title}</span>
-                <div className={styles.link}>
+                <span className={styles.title}>{item.title}</span>
+                <div className={styles.links}>
                   {item.list?.map((_item, _index) => {
                     return (
                       <div
-                        className={cNames({
+                        className={cName({
                           [styles.link]: _item.link,
                           [styles.disabled]: !_item.link,
                         })}
@@ -55,10 +58,10 @@ export const Footer: FC<IFooterProps> = ({
                             window.open(
                               _item.link,
                               "blank",
-                              "noopener=yes, noreferrer=yes"
+                              "noopener=yes,noreferrer=yes"
                             );
                         }}
-                        key={`link${index}`}
+                        key={`link${_index}`}
                       >
                         {_item.label}
                       </div>

@@ -1,81 +1,65 @@
-import "../styles/globals.css";
+import "./global.scss";
 import type { AppProps, AppContext } from "next/app";
 import App from "next/app";
 import { ILayoutProps, Layout } from "@/components/layout";
-import code from "@/public/code.png";
 import Head from "next/head";
+import axios from "axios";
+import { getIsMobile, getIsSupportWebp, LOCALDOMAIN } from "@/utils";
+import { ThemeContextProvider } from "@/stores/theme";
+import { LanguageContextProvider } from "@/stores/language";
+import { UserAgentProvider } from "@/stores/userAgent";
+export interface IComponentProps {
+  isMobile?: boolean;
+  isSupportWebp?: boolean;
+}
 
-const MyApp = (data: AppProps & ILayoutProps) => {
-  const { Component, pageProps, navbarData, footerData } = data;
+const MyApp = (data: AppProps & ILayoutProps & IComponentProps) => {
+  const {
+    Component,
+    pageProps,
+    navbarData,
+    footerData,
+    isMobile,
+    isSupportWebp,
+  } = data;
+
   return (
     <div>
       <Head>
-        <title>A Demo For</title>
-        <meta name="description" content="二肥的小窝" />
+        <title>二肥的官网</title>
+        <meta
+          name="description"
+          content={`二肥的官网 (${isMobile ? "Mobile" : "PC"})`}
+        />
+        <meta name="viewport" content="user-scalable=no" />
+        <meta name="viewport" content="initial-scale=1,maximum-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Layout navbarData={navbarData} footerData={footerData}>
-        <Component {...pageProps} />
-      </Layout>
+      <LanguageContextProvider>
+        <ThemeContextProvider>
+          <UserAgentProvider>
+            <Layout navbarData={navbarData} footerData={footerData}>
+              <Component
+                {...pageProps}
+                isMobile={isMobile}
+                isSupportWebp={isSupportWebp}
+              />
+            </Layout>
+          </UserAgentProvider>
+        </ThemeContextProvider>
+      </LanguageContextProvider>
     </div>
   );
 };
 
 MyApp.getInitialProps = async (context: AppContext) => {
   const pageProps = await App.getInitialProps(context);
-
+  const { data = {} } = await axios.get(`${LOCALDOMAIN}/api/layout`);
   return {
     ...pageProps,
-    navbarData: {},
-    footerData: {
-      title: "Demo",
-      linkList: [
-        {
-          title: "技术栈",
-          list: [
-            {
-              label: "react",
-            },
-            {
-              label: "typescript",
-            },
-            {
-              label: "ssr",
-            },
-            {
-              label: "nodejs",
-            },
-          ],
-        },
-        {
-          title: "了解更多",
-          list: [
-            {
-              label: "掘金",
-              link: "https://juejin.cn/user/2714061017452557",
-            },
-            {
-              label: "知乎",
-              link: "https://www.zhihu.com/people/zmAboutFront",
-            },
-            {
-              label: "csdn",
-            },
-          ],
-        },
-        {
-          title: "联系我",
-          list: [{ label: "微信" }, { label: "QQ" }],
-        },
-      ],
-      qrCode: {
-        image: code,
-        text: "祯民讲前端微信公众号",
-      },
-      copyRight: "Copyright © 2022 xxx. 保留所有权利",
-      siteNumber: "粤ICP备XXXXXXXX号-X",
-      publicNumber: "粤公网安备 xxxxxxxxxxxxxx号",
-    },
+    ...data,
+    isMobile: getIsMobile(context),
+    isSupportWebp: getIsSupportWebp(context),
   };
 };
 

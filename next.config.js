@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const path = require("path");
+const semi = require("@douyinfe/semi-next").default({});
 
-module.exports = {
+module.exports = semi({
   reactStrictMode: true,
   swcMinify: true,
   webpack: (config) => {
@@ -12,6 +13,13 @@ module.exports = {
     return config;
   },
   images: {
-    domains: ['link.papareact.com/*']
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '1337',
+        pathname: '/uploads/**',
+      },
+    ],
   },
-};
+});
